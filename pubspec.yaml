@@ -1,0 +1,35 @@
+name: rtk_mobile
+description: A new Flutter project.
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  font_awesome_flutter: ^9.0.0
+  webview_flutter: ^2.0.8
+  url_launcher: ^6.0.6
+
+  here_sdk:
+    path: plugins/here_sdk
+  validators: ^3.0.0
+  awesome_dialog: ^2.0.0
+  flutter_spinkit: ^4.1.2
+  http: ^0.13.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/
+
