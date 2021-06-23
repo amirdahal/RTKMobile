@@ -11,14 +11,14 @@ class NetworkHelper {
 
   Future setMode(String mode) async {
     IP = LocalStorageManager.IP;
-    String url = 'http://$IP/command/\$EZ_RTK|SET-MODE|$mode';
+    String url = 'http://$IP/command/\$EZ_RTK,SET-MODE,$mode';
     http.Response response = await http.get(Uri.parse(url));
     return response.statusCode;
   }
 
   Future setWiFiConfig(String ssid, String password) async {
     IP = LocalStorageManager.IP;
-    String url = 'http://$IP/command/\$EZ_RTK,SET-WIFI,$ssid,$password';
+    String url = 'http://$IP/connect/\$EZ_RTK,SET-WIFI,$ssid,$password';
     http.Response response = await http.get(Uri.parse(url));
     print(response.body);
     return response.body;
