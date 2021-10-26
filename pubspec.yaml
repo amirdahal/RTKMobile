@@ -15,12 +15,15 @@ dependencies:
   webview_flutter: ^2.0.8
   url_launcher: ^6.0.6
 
-  here_sdk:
-    path: plugins/here_sdk
+#  here_sdk:
+#    path: plugins/here_sdk
+  flutter_osm_plugin: ^0.21.0
   validators: ^3.0.0
   awesome_dialog: ^2.0.0
   flutter_spinkit: ^4.1.2
   http: ^0.13.2
+  flutter_map: any
+  geolocator: ^7.6.2
 
 dev_dependencies:
   flutter_test:

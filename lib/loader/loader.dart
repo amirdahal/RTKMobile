@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:rtk_mobile/components/constants.dart';
 import 'package:rtk_mobile/components/round_icon_button.dart';
 import 'package:rtk_mobile/services/local_storage.dart';
 import 'package:rtk_mobile/services/networking.dart';
+import 'package:rtk_mobile/services/map_object.dart';
 
 class LoaderScreen extends StatefulWidget {
   @override
@@ -18,6 +20,17 @@ class _LoaderScreenState extends State<LoaderScreen> {
       "1. Connect to EZ_RTK wifi to start setup.\n2. If done click button below.";
   String _infoText2 =
       "1. Connect to wifi as ESP.\n2. If done click button below.";
+
+  @override
+  void initState() {
+    setPosition();
+    super.initState();
+  }
+
+  void setPosition() async {
+    Position position = await UserLocation().getPosition();
+    LocalStorageManager.position = position;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -25,9 +25,11 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text('RTK HOME'),
+        backgroundColor: kInactiveCardColor,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,18 +47,18 @@ class _HomeState extends State<Home> {
                           children: [
                             RoundedButton(
                               onPressed: () async {
-                                var res = await networkHelper.setMode('BASE');
+                                var res = await networkHelper.setMode('ROVER');
                                 if (res == 200) {
                                   print('Done!!!');
-                                  LocalStorageManager.mode = 'BASE';
+                                  LocalStorageManager.mode = 'ROVER';
                                   showMyDialog(context, 'MODE SET',
-                                      'RTK mode set to BASE');
+                                      'RTK mode set to ROVER');
                                 } else {
                                   print('something went wrong');
                                 }
                                 setState(() {});
                               },
-                              title: 'SET MODE BASE',
+                              title: 'SET MODE ROVER',
                               colour: kInactiveCardColor,
                             ),
                           ],
@@ -66,7 +68,7 @@ class _HomeState extends State<Home> {
                       cardChild: CustomIconWidget(
                         //icon: FontAwesomeIcons.broadcastTower,
                         icon: Icons.satellite_outlined,
-                        label: 'SET BASE',
+                        label: 'SET ROVER',
                       ),
                     ),
                   ),
@@ -100,20 +102,19 @@ class _HomeState extends State<Home> {
                               ),
                               RoundedButton(
                                 onPressed: () async {
-                                  var res =
-                                      await networkHelper.setMode('ROVER');
+                                  var res = await networkHelper.setMode('BASE');
                                   if (res == 200) {
                                     print('Done!!!');
-                                    LocalStorageManager.mode = 'ROVER';
+                                    LocalStorageManager.mode = 'BASE';
                                     showMyDialog(context, 'MODE SET',
-                                        'RTK mode set to ROVER');
+                                        'RTK mode set to BASE');
                                   } else {
                                     print('something went wrong');
                                   }
                                   setState(() {});
                                 },
                                 colour: kInactiveCardColor,
-                                title: 'SET MODE ROVER',
+                                title: 'SET MODE BASE',
                               )
                             ],
                           ),
@@ -121,7 +122,7 @@ class _HomeState extends State<Home> {
                       ),
                       cardChild: CustomIconWidget(
                         icon: FontAwesomeIcons.satelliteDish,
-                        label: 'SET ROVER',
+                        label: 'SET BASE',
                       ),
                     ),
                   ),

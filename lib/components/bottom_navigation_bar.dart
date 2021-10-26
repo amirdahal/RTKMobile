@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rtk_mobile/screens/download_logs.dart';
-import 'package:rtk_mobile/screens/home1.dart';
+// import 'package:rtk_mobile/screens/download_logs.dart';
+// import 'package:rtk_mobile/screens/home1.dart';
 
 class BottomNavigtionBar extends StatefulWidget {
   final int currentIndex;
@@ -11,7 +11,7 @@ class BottomNavigtionBar extends StatefulWidget {
 }
 
 class _BottomNavigtionBarState extends State<BottomNavigtionBar> {
-  static List routes = [Home(), Download, Home, Download];
+  //static List routes = [Home(), Download, Home, Download];
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class _BottomNavigtionBarState extends State<BottomNavigtionBar> {
       },
       items: [
         BottomNavigationBarItem(
-          title: Text('Home'),
+          label: 'Home',
           icon: Icon(Icons.home_outlined),
           activeIcon: Icon(
             Icons.home_outlined,
@@ -44,7 +44,7 @@ class _BottomNavigtionBarState extends State<BottomNavigtionBar> {
           ),
         ),
         BottomNavigationBarItem(
-          title: Text('Map'),
+          label: 'Map',
           icon: Icon(Icons.location_on_sharp),
           activeIcon: Icon(
             Icons.location_on,
@@ -52,7 +52,7 @@ class _BottomNavigtionBarState extends State<BottomNavigtionBar> {
           ),
         ),
         BottomNavigationBarItem(
-          title: Text('Logs'),
+          label: 'Logs',
           icon: Icon(Icons.download_outlined),
           activeIcon: Icon(
             Icons.download_outlined,
@@ -60,7 +60,7 @@ class _BottomNavigtionBarState extends State<BottomNavigtionBar> {
           ),
         ),
         BottomNavigationBarItem(
-          title: Text('Settings'),
+          label: 'Settings',
           icon: Icon(Icons.settings),
           activeIcon: Icon(
             Icons.settings,

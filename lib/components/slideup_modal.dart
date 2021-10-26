@@ -3,6 +3,7 @@ import 'package:awesome_dialog/awesome_dialog.dart';
 
 void slideUpModal(context, child) {
   showModalBottomSheet(
+    isScrollControlled: false,
     backgroundColor: Colors.transparent,
     isDismissible: true,
     enableDrag: true,
@@ -16,9 +17,10 @@ void slideUpModal(context, child) {
             topRight: const Radius.circular(30.0),
           ),
         ),
-        child: SingleChildScrollView(
-          child: child,
-        ),
+        // child: SingleChildScrollView(
+        //   child: child,
+        // ),
+        child: child,
       );
     },
   );

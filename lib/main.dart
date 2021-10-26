@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Color(0xFF0A0E21),
         scaffoldBackgroundColor: Color(0xFF0A0E21),
       ),
+      //home: Map(),
       home: LoaderScreen(),
       routes: {
         '/0': (context) => Home(),
