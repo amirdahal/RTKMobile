@@ -1,3 +1,132 @@
+// import 'package:flutter/material.dart';
+// import 'package:flutter_map/flutter_map.dart';
+// import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+// import 'package:latlong2/latlong.dart';
+
+// class Map extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Flutter Map',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//         visualDensity: VisualDensity.adaptivePlatformDensity,
+//       ),
+//       home: MyHomePage(),
+//     );
+//   }
+// }
+
+// class MyHomePage extends StatefulWidget {
+//   MyHomePage({
+//     Key key,
+//   }) : super(key: key);
+
+//   @override
+//   _MyHomePageState createState() => _MyHomePageState();
+// }
+
+// class _MyHomePageState extends State<MyHomePage> {
+//   final PopupController _popupController = PopupController();
+//   MapController _mapController = MapController();
+//   double _zoom = 7;
+//   List<LatLng> _latLngList = [
+//     LatLng(13, 77.5),
+//     LatLng(13.02, 77.51),
+//     LatLng(13.05, 77.53),
+//     LatLng(13.055, 77.54),
+//     LatLng(13.059, 77.55),
+//     LatLng(13.07, 77.55),
+//     LatLng(13.1, 77.5342),
+//     LatLng(13.12, 77.51),
+//     LatLng(13.015, 77.53),
+//     LatLng(13.155, 77.54),
+//     LatLng(13.159, 77.55),
+//     LatLng(13.17, 77.55),
+//   ];
+//   List<Marker> _markers = [];
+
+//   @override
+//   void initState() {
+//     _markers = _latLngList
+//         .map((point) => Marker(
+//               point: point,
+//               width: 60,
+//               height: 60,
+//               builder: (context) => Icon(
+//                 Icons.pin_drop,
+//                 size: 60,
+//                 color: Colors.blueAccent,
+//               ),
+//             ))
+//         .toList();
+//     super.initState();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Map'),
+//       ),
+//       body: FlutterMap(
+//         mapController: _mapController,
+//         options: MapOptions(
+//           // swPanBoundary: LatLng(13, 77.5),
+//           // nePanBoundary: LatLng(13.07001, 77.58),
+//           center: _latLngList[0],
+//           bounds: LatLngBounds.fromPoints(_latLngList),
+//           zoom: _zoom,
+//           plugins: [
+//             MarkerClusterPlugin(),
+//           ],
+//         ),
+//         layers: [
+//           TileLayerOptions(
+//             minZoom: 2,
+//             maxZoom: 18,
+//             backgroundColor: Colors.black,
+//             // errorImage: ,
+//             urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+//             subdomains: ['a', 'b', 'c'],
+//           ),
+//           MarkerClusterLayerOptions(
+//             maxClusterRadius: 190,
+//             disableClusteringAtZoom: 16,
+//             size: Size(50, 50),
+//             fitBoundsOptions: FitBoundsOptions(
+//               padding: EdgeInsets.all(50),
+//             ),
+//             markers: _markers,
+//             polygonOptions: PolygonOptions(
+//                 borderColor: Colors.blueAccent,
+//                 color: Colors.black12,
+//                 borderStrokeWidth: 3),
+//             popupOptions: PopupOptions(
+//               popupSnap: PopupSnap.markerTop,
+//               popupController: _popupController,
+//               popupBuilder: (_, marker) => Container(
+//                 color: Colors.amberAccent,
+//                 child: Text('Popup'),
+//               ),
+//             ),
+//             builder: (context, markers) {
+//               return Container(
+//                 alignment: Alignment.center,
+//                 decoration: BoxDecoration(
+//                   color: Colors.orange,
+//                   shape: BoxShape.circle,
+//                 ),
+//                 child: Text('${markers.length}'),
+//               );
+//             },
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }
+// //from here
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -9,6 +138,8 @@ import 'package:rtk_mobile/services/networking.dart';
 import 'package:http/http.dart' as http;
 import 'package:rtk_mobile/services/nmea_parser.dart';
 import 'package:rtk_mobile/components/constants.dart';
+import 'package:flutter_map_marker_popup/flutter_map_marker_popup.dart';
+import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 //import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 
 class Map extends StatefulWidget {
@@ -17,13 +148,22 @@ class Map extends StatefulWidget {
 }
 
 class _MapState extends State<Map> {
+  final PopupController _popupController = PopupController();
   MapController controller = new MapController();
   NetworkHelper networkHelper = NetworkHelper();
   LatLng point;
   Timer timer;
   bool init = false;
   LatLng center;
-  List coordinates = [];
+  List<Marker> markers;
+  List<LatLng> coordinates = [
+    LatLng(13, 77.5),
+    LatLng(13.02, 77.51),
+    LatLng(13.05, 77.53),
+    LatLng(13.155, 77.54),
+    LatLng(13.159, 77.55),
+    LatLng(13.17, 77.55),
+  ];
 
   @override
   void initState() {
@@ -32,6 +172,7 @@ class _MapState extends State<Map> {
       center = LatLng(position.latitude, position.longitude);
       point = center;
       init = true;
+      updateMarkers();
     });
     //getCenter();
     getCoordinates();
@@ -43,6 +184,22 @@ class _MapState extends State<Map> {
     super.dispose();
   }
 
+  Future<void> updateMarkers() async {
+    markers = coordinates
+        .map(
+          (point) => Marker(
+            point: point,
+            width: 60,
+            height: 60,
+            builder: (context) => Icon(
+              Icons.location_on,
+              color: Colors.red,
+            ),
+          ),
+        )
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,34 +208,70 @@ class _MapState extends State<Map> {
           alignment: Alignment.bottomCenter,
           children: [
             FlutterMap(
+              mapController: controller,
               options: MapOptions(
-                minZoom: 10,
-                maxZoom: 18,
-                zoom: 18,
+                // swPanBoundary: LatLng(13, 77.5),
+                // nePanBoundary: LatLng(13.07001, 77.58),
                 center: center,
-                controller: controller,
+                bounds: LatLngBounds.fromPoints(coordinates),
+                zoom: 18,
+                minZoom: 12,
+                maxZoom: 18,
+                plugins: [
+                  MarkerClusterPlugin(),
+                ],
               ),
               layers: [
                 TileLayerOptions(
+                  minZoom: 12,
+                  maxZoom: 18,
+                  backgroundColor: Colors.black,
+                  // errorImage: ,
                   urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
                   subdomains: ['a', 'b', 'c'],
                 ),
-                MarkerLayerOptions(
-                  markers: [
-                    Marker(
-                      width: 45.0,
-                      height: 45.0,
-                      point: point,
-                      builder: (context) => IconButton(
-                        icon: Icon(Icons.location_on),
-                        color: Colors.red,
-                        onPressed: () {
-                          print('clicked marker');
-                        },
+                MarkerClusterLayerOptions(
+                  maxClusterRadius: 190,
+                  disableClusteringAtZoom: 16,
+                  size: Size(50, 50),
+                  fitBoundsOptions: FitBoundsOptions(
+                    padding: EdgeInsets.all(50),
+                  ),
+                  markers: markers,
+                  polygonOptions: PolygonOptions(
+                    borderColor: Colors.blueAccent,
+                    color: Colors.black12,
+                    borderStrokeWidth: 3,
+                  ),
+                  popupOptions: PopupOptions(
+                    popupSnap: PopupSnap.markerTop,
+                    popupController: _popupController,
+                    popupBuilder: (_, marker) => Container(
+                      color: Colors.white,
+                      child: Container(
+                        height: 40.0,
+                        child: Column(
+                          children: [
+                            Text(
+                              '${marker.point.latitude.toString()} / ${marker.point.longitude.toString()}',
+                              style: kLabelTextStyle,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ],
+                  ),
+                  builder: (context, markers) {
+                    return Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Colors.orange,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text('${markers.length}'),
+                    );
+                  },
                 ),
               ],
             ),
@@ -133,8 +326,11 @@ class _MapState extends State<Map> {
         if (cor != null) {
           cor = jsonDecode(cor);
           try {
-            setState(() {
-              point = LatLng(cor["lat"], cor["lon"]);
+            point = LatLng(cor["lat"], cor["lon"]);
+            coordinates.add(point);
+            if (coordinates.length >= 15) coordinates.removeAt(0);
+            setState(() async {
+              await updateMarkers();
             });
             //controller.move(center, 15);
           } catch (e) {
@@ -151,6 +347,8 @@ class _MapState extends State<Map> {
   //   );
   // }
 }
+
+//till here
 
 // import 'dart:async';
 // import 'dart:core';
