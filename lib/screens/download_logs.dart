@@ -1,9 +1,8 @@
 import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:rtk_mobile/components/bottom_navigation_bar.dart';
-import 'package:rtk_mobile/components/download_card_tile.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:http/http.dart' as http;
+import 'package:rtk_mobile/components/bottom_navigation_bar.dart';
 import 'package:rtk_mobile/services/local_storage.dart';
 import 'package:rtk_mobile/services/networking.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -23,9 +22,10 @@ class _DownloadState extends State<Download> {
     setState(() => _isLoading = true);
     http.Response response = await networkHelper.getFiles();
     String bodyText = response.body;
+    print(bodyText);
     setState(() {
       _isLoading = false;
-      files = bodyText.split(', ');
+      files = bodyText.split(' ');
       if (bodyText == 'failed to open directory') {
         files = [];
         AwesomeDialog(
@@ -42,6 +42,7 @@ class _DownloadState extends State<Download> {
       }
     });
     print(files);
+    print(files.length);
   }
 
   @override
@@ -71,23 +72,28 @@ class _DownloadState extends State<Download> {
                 ? SpinKitFadingFour(
                     color: Colors.white,
                   )
-                : ListView(
-                    scrollDirection: Axis.vertical,
-                    children: [
-                      for (var file in files)
-                        DownloadCardTile(
-                          fileName: '${file.substring(1)}',
-                          onPressed: () async {
+                : ListView.builder(
+                    itemCount: files.length - 1,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        leading: Icon(Icons.list),
+                        trailing: GestureDetector(
+                          child: Icon(
+                            Icons.download,
+                            color: Colors.green,
+                          ),
+                          onTap: () async {
                             var _url =
-                                'http://${LocalStorageManager.IP}/download$file';
-
+                                'http://${LocalStorageManager.IP}/download${files[index]}';
                             await canLaunch(_url)
                                 ? await launch(_url)
                                 : throw 'Could not launch $_url';
                           },
                         ),
-                    ],
-                  ),
+                        title:
+                            Text("${files[index].split(".")[0].substring(1)}"),
+                      );
+                    }),
           ),
           Expanded(child: BottomNavigtionBar(currentIndex: 2))
         ],

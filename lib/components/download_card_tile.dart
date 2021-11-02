@@ -27,10 +27,12 @@ class DownloadCardTile extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 6,
+              flex: 5,
               child: Text(
                 '$fileName',
-                style: kBodyTextStyle,
+                style: kBodyTextStyle.copyWith(
+                  fontSize: 12.0,
+                ),
               ),
             ),
             Expanded(
