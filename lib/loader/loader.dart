@@ -4,8 +4,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:rtk_mobile/components/constants.dart';
 import 'package:rtk_mobile/components/round_icon_button.dart';
 import 'package:rtk_mobile/services/local_storage.dart';
-import 'package:rtk_mobile/services/networking.dart';
 import 'package:rtk_mobile/services/map_object.dart';
+import 'package:rtk_mobile/services/networking.dart';
 
 class LoaderScreen extends StatefulWidget {
   @override
@@ -24,6 +24,7 @@ class _LoaderScreenState extends State<LoaderScreen> {
   @override
   void initState() {
     setPosition();
+
     super.initState();
   }
 
@@ -70,12 +71,17 @@ class _LoaderScreenState extends State<LoaderScreen> {
                         LocalStorageManager.IP = cred[1];
                         _infoText2 =
                             "1. Connect to ${cred[0]} wifi as ESP.\n2. If done click button below.";
-                      } else {
+                        setState(() => _step2 = true);
+                      } else if (some == 'none') {
                         _infoText2 =
                             "Looks like ESP isn't connected to any network. Proceed with EZ_RTK wifi and configure your esp";
+                        setState(() => _step2 = true);
+                      } else {
+                        setState(() {
+                          _step1 = true;
+                          _step2 = false;
+                        });
                       }
-
-                      setState(() => _step2 = true);
                     },
                   ),
                 ],
@@ -99,6 +105,23 @@ class _LoaderScreenState extends State<LoaderScreen> {
                   ),
                 ],
               ),
+            ),
+            GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 50.0),
+                child: Icon(
+                  Icons.repeat,
+                  size: 35.0,
+                  color: Colors.red,
+                  semanticLabel: 'Reset app',
+                ),
+              ),
+              onTap: () {
+                setState(() {
+                  _step1 = true;
+                  _step2 = false;
+                });
+              },
             ),
           ],
         ),
