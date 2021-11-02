@@ -156,48 +156,49 @@ class _MapState extends State<Map> {
   bool init = false;
   LatLng center;
   List<Marker> markers;
-  List<LatLng> coordinates = [
-    LatLng(13, 77.5),
-    LatLng(13.02, 77.51),
-    LatLng(13.05, 77.53),
-    LatLng(13.155, 77.54),
-    LatLng(13.159, 77.55),
-    LatLng(13.17, 77.55),
-  ];
+  double currentLat;
+  double currentLon;
+
+  List<LatLng> coordinates = [];
 
   @override
   void initState() {
     Position position = LocalStorageManager.position;
     setState(() {
       center = LatLng(position.latitude, position.longitude);
+      coordinates.add(center);
       point = center;
+      currentLat = point.latitude;
+      currentLon = point.longitude;
       init = true;
       updateMarkers();
     });
-    //getCenter();
     getCoordinates();
     super.initState();
   }
 
   @override
   void dispose() {
+    timer = null;
     super.dispose();
   }
 
-  Future<void> updateMarkers() async {
-    markers = coordinates
-        .map(
-          (point) => Marker(
-            point: point,
-            width: 60,
-            height: 60,
-            builder: (context) => Icon(
-              Icons.location_on,
-              color: Colors.red,
+  updateMarkers() {
+    setState(() {
+      markers = coordinates
+          .map(
+            (point) => Marker(
+              point: point,
+              width: 60,
+              height: 60,
+              builder: (context) => Icon(
+                Icons.location_on,
+                color: Colors.red,
+              ),
             ),
-          ),
-        )
-        .toList();
+          )
+          .toList();
+    });
   }
 
   @override
@@ -254,7 +255,7 @@ class _MapState extends State<Map> {
                         child: Column(
                           children: [
                             Text(
-                              '${marker.point.latitude.toString()} / ${marker.point.longitude.toString()}',
+                              '${marker.point.latitude} / ${marker.point.longitude}',
                               style: kLabelTextStyle,
                             ),
                           ],
@@ -287,7 +288,7 @@ class _MapState extends State<Map> {
                       child: Column(
                         children: [
                           Text("Latitude"),
-                          Text(point.latitude.toString()),
+                          Text(currentLat.toString()),
                         ],
                       ),
                     ),
@@ -295,7 +296,7 @@ class _MapState extends State<Map> {
                       child: Column(
                         children: [
                           Text("Longitude"),
-                          Text(point.longitude.toString()),
+                          Text(currentLon.toString()),
                         ],
                       ),
                     ),
@@ -314,27 +315,29 @@ class _MapState extends State<Map> {
   }
 
   Future getCoordinates() async {
-    timer = Timer.periodic(Duration(seconds: 10), (Timer t) async {
+    timer = Timer.periodic(Duration(seconds: 2), (Timer t) async {
       http.Response response = await networkHelper.getLiveDate();
       String sentence = response.body;
-      //print(sentence);
       List nmea = sentence.split("\r\n");
       for (var n in nmea) {
-        print(n);
         var cor = await NmeaParser.parse(n);
-        print(cor);
         if (cor != null) {
           cor = jsonDecode(cor);
           try {
-            point = LatLng(cor["lat"], cor["lon"]);
-            coordinates.add(point);
-            if (coordinates.length >= 15) coordinates.removeAt(0);
             setState(() async {
-              await updateMarkers();
-            });
-            //controller.move(center, 15);
+              point = LatLng(cor["lat"], cor["lon"]);
+              currentLat = point.latitude;
+              currentLon = point.longitude;
+              if (!coordinates.contains(point)) {
+                coordinates.add(point);
+                print(n);
+                print(cor);
+              }
+                if (coordinates.length > 20) coordinates.removeAt(0);
+                updateMarkers();
+              }
+            );
           } catch (e) {
-            //throw e;
           }
         }
       }
