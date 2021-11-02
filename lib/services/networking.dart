@@ -36,8 +36,8 @@ class NetworkHelper {
   Future getInitialData() async {
     IP = LocalStorageManager.IP;
     String tempUrl = 'http://$IP/init/';
-    print(tempUrl);
-    http.Response response = await http.get(Uri.parse(tempUrl));
+    http.Response response;
+    response = await http.get(Uri.parse(tempUrl));
     return response.body;
   }
 
