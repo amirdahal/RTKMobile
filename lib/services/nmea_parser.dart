@@ -1,7 +1,7 @@
 class NmeaParser {
   static List nmea;
 
-  static Future<dynamic> parse(String sentence) {
+  static dynamic parse(String sentence) {
     NmeaParser parser = new NmeaParser();
     nmea = sentence.split(",");
 
@@ -16,26 +16,29 @@ class NmeaParser {
       case "\$GPGSV":
         return null;
       case "\$PSTI":
-        return parser.parsePsti();
+        return null;
+        //return parser.parsePsti();
       case "\$GNGLL":
         return parser.parseGngll();
     }
     return null;
   }
 
-  Future<dynamic> parseGpgga() async {
+  parseGpgga() {
     var cor, lat, lon;
     try {
       if (nmea[3] == "S") {
-        lat = (-1 * double.parse(nmea[2]) / 100).toStringAsFixed(5);
+        lat = -1 * double.parse(nmea[2]);
       } else {
-        lat = (double.parse(nmea[2]) / 100).toStringAsFixed(5);
+        lat = double.parse(nmea[2]);
       }
       if (nmea[5] == "W") {
-        lon = (-1 * double.parse(nmea[4]) / 100).toStringAsFixed(5);
+        lon = -1 * double.parse(nmea[4]);
       } else {
-        lon = (double.parse(nmea[4]) / 100).toStringAsFixed(5);
+        lon = double.parse(nmea[4]);
       }
+      lat = dmsToDecimal(lat);
+      lon = dmsToDecimal(lon);
       cor = '''
           {
             "lat": $lat,
@@ -48,19 +51,21 @@ class NmeaParser {
     }
   }
 
-  Future<dynamic> parsePsti() async {
+  parsePsti() {
     var cor, lat, lon;
     try {
       if (nmea[5] == "S") {
-        lat = (-1 * double.parse(nmea[5]) / 100).toStringAsFixed(5);
+        lat = -1 * double.parse(nmea[4]);
       } else {
-        lat = (double.parse(nmea[5]) / 100).toStringAsFixed(5);
+        lat = double.parse(nmea[4]);
       }
       if (nmea[7] == "W") {
-        lon = (-1 * double.parse(nmea[6]) / 100).toStringAsFixed(5);
+        lon = -1 * double.parse(nmea[6]);
       } else {
-        lon = (double.parse(nmea[6]) / 100).toStringAsFixed(5);
+        lon = double.parse(nmea[6]);
       }
+      lat = dmsToDecimal(lat);
+      lon = dmsToDecimal(lon);
       cor = '''
           {
             "lat": $lat,
@@ -73,19 +78,21 @@ class NmeaParser {
     }
   }
 
-  Future<dynamic> parseGprmc() async {
+  parseGprmc() {
     var cor, lat, lon;
     try {
       if (nmea[4] == "S") {
-        lat = (-1 * double.parse(nmea[3]) / 100).toStringAsFixed(5);
+        lat = -1 * double.parse(nmea[3]);
       } else {
-        lat = (double.parse(nmea[3]) / 100).toStringAsFixed(5);
+        lat = double.parse(nmea[3]);
       }
       if (nmea[6] == "W") {
-        lon = (-1 * double.parse(nmea[5]) / 100).toStringAsFixed(5);
+        lon = -1 * double.parse(nmea[5]);
       } else {
-        lon = (double.parse(nmea[5]) / 100).toStringAsFixed(5);
+        lon = double.parse(nmea[5]);
       }
+      lat = dmsToDecimal(lat);
+      lon = dmsToDecimal(lon);
       cor = '''
           {
             "lat": $lat,
@@ -101,19 +108,21 @@ class NmeaParser {
   // dynamic parseGpgsa() {}
   // dynamic parseGpgsv() {}
 
-  Future<dynamic> parseGngll() async {
+  parseGngll() {
     var cor, lat, lon;
     try {
       if (nmea[2] == "S") {
-        lat = (-1 * double.parse(nmea[1]) / 100).toStringAsFixed(5);
+        lat = -1 * double.parse(nmea[1]);
       } else {
-        lat = (double.parse(nmea[1]) / 100).toStringAsFixed(5);
+        lat = double.parse(nmea[1]);
       }
       if (nmea[4] == "W") {
-        lon = (-1 * double.parse(nmea[3]) / 100).toStringAsFixed(5);
+        lon = -1 * double.parse(nmea[3]);
       } else {
-        lon = (double.parse(nmea[3]) / 100).toStringAsFixed(5);
+        lon = double.parse(nmea[3]);
       }
+      lat = dmsToDecimal(lat);
+      lon = dmsToDecimal(lon);
       cor = '''
           {
             "lat": $lat,
@@ -124,5 +133,12 @@ class NmeaParser {
     } catch (e) {
       return null;
     }
+  }
+
+  dmsToDecimal(dms) {
+    var dd = dms~/100;
+    var mm = dms-dd*100;
+    var c = dd+mm/60;
+    return c.toStringAsFixed(5);
   }
 }
